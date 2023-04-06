@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 수정 -->
+<mapper namespace="board">
+	<!-- 답글 수정 -->
+	<update id="ajaxReplyUpdate" parameterType="replyVO">
+		UPDATE reply SET replyContent = #{replyContent} WHERE replyID = #{replyID}
+	</update>
+	
+	<select id="selectBoardLike" parameterType="customerVO" resultType="customerVO">
+		SELECT boardLike FROM customer WHERE customerID = #{customerID}
+	</select>
+	
+	<update id="insertBoardLike" parameterType="boardVO">
+	UPDATE customer 
+	SET boardLike = #{boardLike} 
+	WHERE customerID = #{customerID} 
+	</update>
+	
+	<!-- 총 게시글 갯수 출력 -->
+	<select id = "countBoard" parameterType="pagingVO" resultType="int">
+		SELECT COUNT(*) FROM BOARD ${randomData}
+	</select>
+	
+	<!-- 페이징 처리 후 게시물 조회 -->
+	<select id = "selectBoard" parameterType="pagingVO" resultType="boardVO">
+		SELECT * FROM(
+		SELECT * FROM (
+		SELECT ROWNUM RNUM, A.* FROM (
+		SELECT * FROM BOARD
+		${randomData} ORDER BY boardID DESC
+		) A
+		) WHERE RNUM BETWEEN #{start} AND #{end})
+		
+	</select>
+	<!-- Star Board -->
+	<select id="starSelect" parameterType="boardVO" resultType="boardVO">
+		SELECT * FROM board WHERE boardID = #{boardID}
+	</select>
+	
+	<select id="selectCheck" parameterType="boardVO" resultType="boardVO">
+		SELECT * FROM board WHERE boardID = #{boardID}
+	</select>
+	
+	<update id="starUpdate" parameterType="boardVO">
+		UPDATE board SET boardSelect = '채택' WHERE boardID = #{boardID}
+	</update>
+	
+	<update id="addStar" parameterType="replyVO">
+		UPDATE reply SET boardSelect = '채택' WHERE replyID = #{replyID}
+	</update>
+	
+	<select id="starReply" parameterType="replyVO" resultType="replyVO">
+		SELECT * FROM reply WHERE replyID = #{replyID}
+	</select>
+	
+	<update id="plusCustomerStar" parameterType="replyVO">
+		UPDATE customer SET star = ((SELECT postingStar FROM board WHERE boardID = #{boardID})+(SELECT star FROM customer WHERE customerID = #{customerID})) 
+		WHERE customerID = #{customerID}
+	</update>
+	
+	<!-- 게시글 수정하기 -->
+	<update id="updateBoard"  parameterType="boardVO" >
+		
+		UPDATE board SET
+		boardTitle = #{boardTitle},
+		boardContent = #{boardContent}
+		WHERE boardID = #{boardID}
+		
+	</update>
+	<!-- 보유중인 star 빼기 -->
+	<update id="minusStar" parameterType="boardVO">
+	UPDATE customer SET star = ((SELECT star FROM customer WHERE customerID = #{customerID})-${postingStar}) WHERE customerID = #{customerID}
+	</update>
+	
+	<!-- 게시글 목록 보기 -->
+	<select id="getList" resultType="boardVO">
+		SELECT boardID, boardTitle,
+		customerID, uploadDate, boardCount, boardLike FROM Board
+		ORDER BY
+		boardID DESC
+	</select>
+	<!-- 게시글 등록 -->
+	<insert id="insertBoard" parameterType="boardVO">
+
+		INSERT INTO board(
+		boardID, customerID, language, boardType,postingStar,
+		boardContent, uploadDate ,boardSelect,
+		boardTitle, boardCount,
+		boardLike, boardSecret, boardClassification
+
+		)
+		VALUES(boardID_seq.nextval, #{customerID}, #{language,
+		jdbcType=VARCHAR}, #{boardType,jdbcType=VARCHAR},
+		#{postingStar,jdbcType=VARCHAR}, #{boardContent}, sysdate
+		,#{boardSelect,jdbcType=VARCHAR},
+		#{boardTitle}, '0',
+		'0',#{boardSecret,jdbcType=VARCHAR},#{boardClassification,jdbcType=VARCHAR}
+
+		)
+	</insert>
+
+	<!-- 게시글 상세 보기 -->
+	<select id="boardlists" parameterType="boardVO"
+		resultType="boardVO">
+
+		SELECT *
+		FROM board
+		WHERE boardID = #{boardID}
+	</select>
+	
+	<!-- 답글 목록 불러오기 -->
+	<select id="replyList" parameterType="boardVO" resultType="replyVO">
+		SELECT * FROM reply WHERE boardID = ${boardID} ORDER BY replyRegdate
+	</select>
+	
+	<!-- 게시글 삭제하기 -->
+	<delete id="deleteBoard" parameterType="boardVO">
+
+		DELETE board
+		WHERE boardID = #{boardID}
+
+	</delete>
+	<!-- 조회수 증가 -->
+    <update id="updateboardCount" parameterType="boardVO">
+        UPDATE board 
+        SET boardCount = (SELECT boardCount+1 FROM board WHERE boardID = #{boardID})
+        WHERE boardID = #{boardID}
+    </update>
+    
+    <insert id="replyInsert" parameterType="boardVO">
+    	INSERT INTO reply(customerID, replyID, boardID, replyContent, replyRegdate) 
+    	VALUES(#{fname},replyID_seq.nextval,#{boardID},#{boardContent},sysdate)
+    </insert>
+    
+    <insert id="imageUpload" parameterType="boardVO">
+    	INSERT INTO board(boardID, customerID, boardType, fname, fsize, uploadDate)  
+    	VALUES(boardID_seq.nextval, #{customerID}, #{boardType}, #{fname}, #{fsize}, sysdate)
+    </insert>
+    
+    
+</mapper>

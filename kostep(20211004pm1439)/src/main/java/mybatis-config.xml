@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+	<typeAliases>
+		<typeAlias type="com.kostep.domain.AlarmVO" alias="alarmVO" />
+		<typeAlias type="com.kostep.domain.BoardVO" alias="boardVO" />
+		<typeAlias type="com.kostep.domain.CustomerVO" alias="customerVO" />
+		<typeAlias type="com.kostep.domain.LogVO" alias="logVO" />
+		<typeAlias type="com.kostep.domain.TextVO" alias="textVO" />
+		<typeAlias type="com.kostep.domain.PagingVO" alias="pagingVO" />
+		<typeAlias type="com.kostep.domain.ReplyVO" alias="replyVO" />
+	</typeAliases>
+
+
+
+</configuration>	

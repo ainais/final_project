@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="log">
+	<select id="selectRankingList" resultType="customerVO">
+		SELECT * FROM (SELECT ROWNUM AS RNUM,A.* FROM ((SELECT * FROM customer ORDER BY TO_NUMBER(star) DESC) A)) WHERE RNUM <![CDATA[ < ]]> 6
+	</select>
+	<select id="totalBoardCount" resultType="int">
+		SELECT count(*) FROM board
+	</select>
+	<select id="totalReplyCount" resultType="int">
+		SELECT count(*) FROM reply
+	</select>
+	<select id="totalTodayCount" resultType="int">
+		SELECT count(*) FROM board WHERE uploadDate <![CDATA[=]]> sysdate
+	</select>
+	<select id="totalWeekCount" resultType="int">
+		SELECT count(*) FROM board WHERE uploadDate <![CDATA[>]]> sysdate-7
+	</select>
+	<select id="boardHotList" resultType="boardVO">
+		SELECT * FROM (SELECT ROWNUM RNUM, A.* FROM ((SELECT * FROM (SELECT * FROM board WHERE uploadDate <![CDATA[> sysdate-2) WHERE substr(uploadDate,7,8) = substr(sysdate,7,8)) A)) WHERE RNUM <]]> 6
+	</select>
+</mapper>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="customer">
+
+
+	<!-- 로그인 -->
+
+	<select id="selectLoginVO" parameterType="customerVO"
+		resultType="customerVO">
+		SELECT * FROM customer
+		<where>
+			<if test="customerID != null">
+				customerID = #{customerID} AND passwd = #{passwd}
+			</if>
+		</where>
+
+	</select>
+
+	<!-- 회원가입 -->
+	<insert id="signup" parameterType="customerVO">
+		INSERT INTO customer(customerID,passwd,name,gender,birthday,phone,star,stargrade,customerclassification,address,email,regdate,job,boardLike)
+		VALUES(
+		#{customerID},#{passwd},#{name},#{gender},#{birthday},#{phone},'1000','기본등급',
+		'일반회원',#{address},#{email},sysdate, #{job},'1')
+
+	</insert>
+
+	<!-- id 중복 체크 -->
+	<select resultType="integer" id="idCheck">
+	SELECT COUNT(*) FROM
+		customer WHERE CUSTOMERID = #{customerID} 
+	</select>
+	<!-- ================================== -->
+	<!-- 마이페이지 시작 -->
+	<!-- 회원정보 목록  -->
+	<select id="customerlist" resultType="customerVO" parameterType="customerVO">
+	SELECT customerID,name,email,address,phone,job,birthday,gender
+	FROM customer 
+	ORDER BY customerID DESC
+	</select>
+
+	<!-- 회원 상세보기 -->
+     <select resultType="customerVO" parameterType="customerVO" id="customerDetail">
+      SELECT * FROM
+      customer WHERE customerID = #{customerID} 
+     </select>	
+     
+     
+	<!-- 회원정보 수정 -->
+	<update id='ajaxMypageModify' parameterType="customerVO">
+	UPDATE customer SET  email = #{email},
+	address = #{address}, phone = #{phone}, gender = #{gender},	job = #{job}
+	WHERE customerID = #{customerID}
+	</update>
+	
+	
+	<!-- 회원 탈퇴  -->
+	<delete id="ajaxMypagedelete" parameterType="customerVO">
+     DELETE customer
+     WHERE passwd = #{passwd} 
+    </delete>
+	<!-- 마이페이지 종료 -->
+	<!-- ================================== -->
+	
+	<!-- ================================== -->
+	<!-- myBoard 시작 -->
+	<select id="selectMyboard" parameterType="customerVO" resultType="boardVO">
+		SELECT * FROM board WHERE customerID = #{customerID} ORDER BY uploadDate DESC
+	</select>
+	<select id="myFreeboardList" parameterType="customerVO" resultType="boardVO">
+		SELECT * FROM board WHERE customerID = #{customerID} AND boardType = '자유게시판' ORDER BY uploadDate DESC
+	</select>
+	<select id="openChatList" parameterType="customerVO" resultType="textVO">
+		SELECT * FROM opentext WHERE customerID = #{customerID} ORDER BY textDate DESC
+	</select>
+	<select id="selectLikeBoard" parameterType="String" resultType="boardVO">
+		SELECT * FROM board WHERE boardID = #{value}
+	</select>
+	<!-- myBoard 종료 -->
+	<!-- ================================== -->
+</mapper>
